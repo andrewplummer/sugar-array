@@ -1,6 +1,6 @@
 {
   "name": "sugar-array",
-  "description": "A Javascript utility library for working with native objects. Array module.",
+  "description": "Array module for the Sugar Javascript utility library.",
   "homepage": "https://sugarjs.com/",
   "license": "MIT",
   "authors": [
