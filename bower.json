@@ -1,0 +1,35 @@
+{
+  "name": "sugar-array",
+  "description": "A Javascript utility library for working with native objects. Array module.",
+  "homepage": "https://sugarjs.com/",
+  "license": "MIT",
+  "authors": [
+    "Andrew Plummer <plummer.andrew@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andrewplummer/Sugar.git"
+  },
+  "keywords": [
+    "sugar",
+    "sugarjs",
+    "functional",
+    "browser",
+    "utility",
+    "util",
+    "array"
+  ],
+  "main": "dist/sugar-array.js",
+  "ignore": [
+    "**/*",
+    "!dist/*",
+    "!dist/locales/*",
+    "!CHANGELOG.md",
+    "!CAUTION.md",
+    "!README.md",
+    "!LICENSE"
+  ],
+  "moduleType": [
+    "globals"
+  ]
+}
