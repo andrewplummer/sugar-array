@@ -1,5 +1,5 @@
 /*
- *  Sugar v2.0.0
+ *  Sugar v2.0.2
  *
  *  Freely distributable and licensed under the MIT-style license.
  *  Copyright (c) Andrew Plummer
@@ -94,9 +94,9 @@
   }
 
   /***
-   * @method createNamespace(<name>)
-   * @returns Namespace
-   * @global
+   * @method createNamespace(name)
+   * @returns SugarNamespace
+   * @namespace Sugar
    * @short Creates a new Sugar namespace.
    * @extra This method is for plugin developers who want to define methods to be
    *        used with natives that Sugar does not handle by default. The new
@@ -109,6 +109,8 @@
    *
    *   Sugar.createNamespace('Boolean');
    *
+   * @param {string} name - The namespace name.
+   *
    ***/
   function createNamespace(name) {
 
@@ -119,14 +121,13 @@
     var sugarNamespace = getNewChainableClass(name, true);
 
     /***
-     * @method extend([options])
+     * @method extend([opts])
      * @returns Sugar
-     * @global
-     * @namespace
+     * @namespace Sugar
      * @short Extends Sugar defined methods onto natives.
      * @extra This method can be called on individual namespaces like
      *        `Sugar.Array` or on the `Sugar` global itself, in which case
-     *        [options] will be forwarded to each `extend` call. For more,
+     *        [opts] will be forwarded to each `extend` call. For more,
      *        see `extending`.
      *
      * @options
@@ -158,6 +159,22 @@
      *
      *   Sugar.Array.extend();
      *   Sugar.extend();
+     *
+     * @option {Array<string>} [methods]
+     * @option {Array<string|NativeConstructor>} [except]
+     * @option {Array<NativeConstructor>} [namespaces]
+     * @option {boolean} [enhance]
+     * @option {boolean} [enhanceString]
+     * @option {boolean} [enhanceArray]
+     * @option {boolean} [objectPrototype]
+     * @param {ExtendOptions} [opts]
+     *
+     ***
+     * @method extend([opts])
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
+     * @short Extends Sugar defined methods for a specific namespace onto natives.
+     * @param {ExtendOptions} [opts]
      *
      ***/
     var extend = function (opts) {
@@ -255,7 +272,7 @@
         // methods, so add a flag here to check later.
         setProperty(sugarNamespace, 'active', true);
       }
-      return Sugar;
+      return sugarNamespace;
     };
 
     function defineWithOptionCollect(methodName, instance, args) {
@@ -267,9 +284,9 @@
     }
 
     /***
-     * @method defineStatic(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineStatic(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines static methods on the namespace that can later be extended
      *        onto the native globals.
      * @extra Accepts either a single object mapping names to functions, or name
@@ -285,13 +302,17 @@
      *     }
      *   });
      *
+     * @signature defineStatic(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineStatic', STATIC);
 
     /***
-     * @method defineInstance(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstance(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines methods on the namespace that can later be extended as
      *        instance methods onto the native prototype.
      * @extra Accepts either a single object mapping names to functions, or name
@@ -315,13 +336,17 @@
      *     }
      *   });
      *
+     * @signature defineInstance(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineInstance', INSTANCE);
 
     /***
-     * @method defineInstanceAndStatic(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstanceAndStatic(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short A shortcut to define both static and instance methods on the namespace.
      * @extra This method is intended for use with `Object` instance methods. Sugar
      *        will not map any methods to `Object.prototype` by default, so defining
@@ -335,14 +360,18 @@
      *     }
      *   });
      *
+     * @signature defineInstanceAndStatic(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineInstanceAndStatic', INSTANCE | STATIC);
 
 
     /***
-     * @method defineStaticWithArguments(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineStaticWithArguments(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines static methods that collect arguments.
      * @extra This method is identical to `defineStatic`, except that when defined
      *        methods are called, they will collect any arguments past `n - 1`,
@@ -361,13 +390,17 @@
      *     }
      *   });
      *
+     * @signature defineStaticWithArguments(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineStaticWithArguments', STATIC, true);
 
     /***
-     * @method defineInstanceWithArguments(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstanceWithArguments(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines instance methods that collect arguments.
      * @extra This method is identical to `defineInstance`, except that when
      *        defined methods are called, they will collect any arguments past
@@ -386,13 +419,17 @@
      *     }
      *   });
      *
+     * @signature defineInstanceWithArguments(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineInstanceWithArguments', INSTANCE, true);
 
     /***
-     * @method defineStaticPolyfill(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineStaticPolyfill(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines static methods that are mapped onto the native if they do
      *        not already exist.
      * @extra Intended only for use creating polyfills that follow the ECMAScript
@@ -407,16 +444,21 @@
      *     }
      *   });
      *
+     * @signature defineStaticPolyfill(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     setProperty(sugarNamespace, 'defineStaticPolyfill', function(arg1, arg2, arg3) {
       var opts = collectDefineOptions(arg1, arg2, arg3);
       extendNative(globalContext[name], opts.methods, true, opts.last);
+      return sugarNamespace;
     });
 
     /***
-     * @method defineInstancePolyfill(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstancePolyfill(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines instance methods that are mapped onto the native prototype
      *        if they do not already exist.
      * @extra Intended only for use creating polyfills that follow the ECMAScript
@@ -434,6 +476,10 @@
      *     }
      *   });
      *
+     * @signature defineInstancePolyfill(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     setProperty(sugarNamespace, 'defineInstancePolyfill', function(arg1, arg2, arg3) {
       var opts = collectDefineOptions(arg1, arg2, arg3);
@@ -442,22 +488,27 @@
       forEachProperty(opts.methods, function(fn, methodName) {
         defineChainableMethod(sugarNamespace, methodName, fn);
       });
+      return sugarNamespace;
     });
 
     /***
-     * @method alias(<toName>, <fromName>)
-     * @returns Namespace
-     * @namespace
+     * @method alias(toName, from)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Aliases one Sugar method to another.
      *
      * @example
      *
      *   Sugar.Array.alias('all', 'every');
      *
+     * @signature alias(toName, fn)
+     * @param {string} toName - Name for new method.
+     * @param {string|Function} from - Method to alias, or string shortcut.
      ***/
     setProperty(sugarNamespace, 'alias', function(name, source) {
       var method = typeof source === 'string' ? sugarNamespace[source] : source;
       setMethod(sugarNamespace, name, method);
+      return sugarNamespace;
     });
 
     // Each namespace can extend only itself through its .extend method.
@@ -1052,11 +1103,20 @@
       return obj[name];
     }
 
-    function setOption(name, val) {
-      if (val === null) {
-        val = defaults[name];
+    function setOption(arg1, arg2) {
+      var options;
+      if (arguments.length === 1) {
+        options = arg1;
+      } else {
+        options = {};
+        options[arg1] = arg2;
       }
-      obj[name] = val;
+      forEachProperty(options, function(val, name) {
+        if (val === null) {
+          val = defaults[name];
+        }
+        obj[name] = val;
+      });
     }
 
     defineAccessor(namespace, 'getOption', getOption);
@@ -2211,11 +2271,11 @@
 
     /***
      *
-     * @method isArray(<obj>)
+     * @method isArray(obj)
      * @returns Boolean
      * @polyfill ES5
      * @static
-     * @short Returns true if <obj> is an Array.
+     * @short Returns true if `obj` is an Array.
      *
      * @example
      *
@@ -2290,13 +2350,13 @@
     },
 
     /***
-     * @method indexOf(<search>, [fromIndex] = 0)
+     * @method indexOf(search, [fromIndex] = 0)
      * @returns Number
      * @polyfill ES5
-     * @short Searches the array and returns the first index where <search> occurs,
+     * @short Searches the array and returns the first index where `search` occurs,
      *        or `-1` if the element is not found.
      * @extra [fromIndex] is the index from which to begin the search. This
-     *        method performs a simple strict equality comparison on <search>.
+     *        method performs a simple strict equality comparison on `search`.
      *        Sugar does not enhance this method to support `enhanced matching`.
      *        For such functionality, use the `findIndex` method instead.
      *
@@ -2314,13 +2374,13 @@
     },
 
     /***
-     * @method lastIndexOf(<search>, [fromIndex] = array.length - 1)
+     * @method lastIndexOf(search, [fromIndex] = array.length - 1)
      * @returns Number
      * @polyfill ES5
      * @short Searches the array from the end and returns the first index where
-     *        <search> occurs, or `-1` if the element is not found.
+     *        `search` occurs, or `-1` if the element is not found.
      * @extra [fromIndex] is the index from which to begin the search. This method
-     *        performs a simple strict equality comparison on <search>.
+     *        performs a simple strict equality comparison on `search`.
      *        Sugar does not enhance this method to support `enhanced matching`.
      *
      * @example
@@ -2369,23 +2429,23 @@
     },
 
     /***
-     * @method reduce(<fn>, [init])
+     * @method reduce(fn, [init])
      * @returns Mixed
      * @polyfill ES5
      * @short Reduces the array to a single result.
      * @extra This operation is sometimes called "accumulation", as it takes the
-     *        result of the last iteration of <fn> and passes it as the first
+     *        result of the last iteration of `fn` and passes it as the first
      *        argument to the next iteration, "accumulating" that value as it goes.
      *        The return value of this method will be the return value of the final
-     *        iteration of <fn>. If [init] is passed, it will be the initial
+     *        iteration of `fn`. If [init] is passed, it will be the initial
      *        "accumulator" (the first argument). If [init] is not passed, then it
-     *        will take the first element in the array, and <fn> will not be called
+     *        will take the first element in the array, and `fn` will not be called
      *        for that element.
      *
      * @callback fn
      *
      *   acc  The "accumulator". Either [init], the result of the last iteration
-     *        of <fn>, or the first element of the array.
+     *        of `fn`, or the first element of the array.
      *   el   The current element for this iteration.
      *   idx  The current index for this iteration.
      *   arr  A reference to the array.
@@ -2416,7 +2476,7 @@
      * @callback fn
      *
      *   acc  The "accumulator", either [init], the result of the last iteration
-     *        of <fn>, or the last element of the array.
+     *        of `fn`, or the last element of the array.
      *   el   The current element for this iteration.
      *   idx  The current index for this iteration.
      *   arr  A reference to the array.
@@ -2473,10 +2533,10 @@
   defineInstancePolyfill(sugarFunction, {
 
      /***
-     * @method bind(<context>, [arg1], ...)
+     * @method bind(context, [arg1], ...)
      * @returns Function
      * @polyfill ES5
-     * @short Binds <context> as the `this` object for the function when it is
+     * @short Binds `context` as the `this` object for the function when it is
      *        called. Also allows currying an unlimited number of parameters.
      * @extra "currying" means setting parameters ([arg1], [arg2], etc.) ahead of
      *        time so that they are passed when the function is called later. If
@@ -2601,7 +2661,7 @@
   defineStaticPolyfill(sugarArray, {
 
     /***
-     * @method from(<a>, [map], [context])
+     * @method from(a, [map], [context])
      * @returns Mixed
      * @polyfill ES6
      * @static
@@ -2694,10 +2754,10 @@
   defineInstancePolyfill(sugarArray, {
 
     /***
-     * @method includes(<search>, [fromIndex] = 0)
+     * @method includes(search, [fromIndex] = 0)
      * @returns Boolean
      * @polyfill ES7
-     * @short Returns true if <search> is contained within the array.
+     * @short Returns true if `search` is contained within the array.
      * @extra Search begins at [fromIndex], which defaults to the beginning of the
      *        array.
      *
@@ -2752,51 +2812,25 @@
   };
 
   /***
-   * @method getOption(<name>)
+   * @method getOption(name)
    * @returns Mixed
    * @accessor
    * @short Gets an option used interally by Array.
    * @extra Options listed below. Current options are for sorting strings with
    *        `sortBy`.
    *
-   * @options
-   *
-   *   sortIgnore        A regex to ignore when sorting. An example usage of this
-   *                     option would be to ignore numbers in a list to instead
-   *                     sort by the first text that appears. Default is `null`.
-   *
-   *   sortIgnoreCase    A boolean that ignores case when sorting.
-   *                     Default is `true`.
-   *
-   *   sortNatural       A boolean that turns on natural sorting. "Natural" means
-   *                     that numerals like "10" will be sorted after "9" instead
-   *                     of after "1". Default is `true`.
-   *
-   *   sortOrder         A string of characters to use as the base sort order. The
-   *                     default is an order natural to most major world languages.
-   *
-   *   sortEquivalents   A table of equivalent characters used when sorting. The
-   *                     default produces a natural sort order for most world
-   *                     languages, however can be modified for others. For
-   *                     example, setting "ä" and "ö" to `null` in the table would
-   *                     produce a Scandanavian sort order.
-   *
-   *   sortCollate       The collation function used when sorting strings. The
-   *                     default function produces a natural sort order that can
-   *                     be customized with the other "sort" options. Overriding
-   *                     the function directly here will also override these
-   *                     options.
-   *
    * @example
    *
    *   Sugar.Array.getOption('sortNatural')
    *
+   * @param {string} name
+   *
    ***
-   * @method setOption(<name>, <value>)
+   * @method setOption(name, value)
    * @accessor
    * @short Sets an option used interally by Array.
    * @extra Options listed below. Current options are for sorting strings with
-   *        `sortBy`. If <value> is `null`, the default value will be restored.
+   *        `sortBy`. If `value` is `null`, the default value will be restored.
    *
    * @options
    *
@@ -2832,6 +2866,17 @@
    *
    *   Sugar.Array.setOption('sortIgnore', /^\d+\./)
    *   Sugar.Array.setOption('sortIgnoreCase', false)
+   *
+   * @signature setOption(options)
+   * @param {ArrayOptions} options
+   * @param {string} name
+   * @param {any} value
+   * @option {RegExp} [sortIgnore]
+   * @option {boolean} [sortIgnoreCase]
+   * @option {boolean} [sortNatural]
+   * @option {string} [sortOrder]
+   * @option {Object} [sortEquivalents]
+   * @option {Function} [sortCollate]
    *
    ***/
   var _arrayOptions = defineOptionsAccessor(sugarArray, ARRAY_OPTIONS);
@@ -3121,15 +3166,15 @@
 
     /***
      *
-     * @method create(<obj>, [clone] = false)
+     * @method create([obj], [clone] = false)
      * @returns Array
      * @static
      * @short Creates an array from an unknown object.
      * @extra This method is similar to native `Array.from` but is faster when
-     *        <obj> is already an array. When [clone] is true, the array will be
+     *        `obj` is already an array. When [clone] is true, the array will be
      *        shallow cloned. Additionally, it will not fail on `undefined`,
      *        `null`, or numbers, producing an empty array in the case of
-     *        `undefined` and wrapping <obj> otherwise.
+     *        `undefined` and wrapping `obj` otherwise.
      *
      * @example
      *
@@ -3139,6 +3184,9 @@
      *   Array.create([1,2,3])   -> [1, 2, 3]
      *   Array.create(undefined) -> []
      *
+     * @param {number|ArrayLike<T>} [obj]
+     * @param {boolean} [clone]
+     *
      ***/
     'create': function(obj, clone) {
       return arrayCreate(obj, clone);
@@ -3146,14 +3194,14 @@
 
     /***
      *
-     * @method construct(<n>, <fn>)
+     * @method construct(n, map)
      * @returns Array
      * @static
-     * @short Constructs an array of <n> length from the values of <fn>.
+     * @short Constructs an array of `n` length from the values of `map`.
      * @extra This function is essentially a shortcut for using `Array.from` with
      *        `new Array(n)`.
      *
-     * @callback fn
+     * @callback indexMapFn
      *
      *   i   The index of the current iteration.
      *
@@ -3162,6 +3210,11 @@
      *   Array.construct(4, function(i) {
      *     return i * i;
      *   }); -> [0, 1, 4]
+     *
+     * @param {number} n
+     * @param {indexMapFn} map
+     * @callbackParam {number} i
+     * @callbackReturns {any} indexMapFn
      *
      ***/
     'construct': function(n, fn) {
@@ -3191,9 +3244,9 @@
     },
 
     /***
-     * @method isEqual(<arr>)
+     * @method isEqual(arr)
      * @returns Boolean
-     * @short Returns true if the array is equal to <arr>.
+     * @short Returns true if the array is equal to `arr`.
      * @extra Objects in the array are considered equal if they are not obserably
      *        distinguishable. This method is an instance alias for
      *        `Object.isEqual()`.
@@ -3204,6 +3257,8 @@
      *   ['a','b'].isEqual(['a','c']) -> false
      *   [{a:'a'}].isEqual([{a:'a'}]) -> true
      *   [5].isEqual([Object(5)])     -> false
+     *
+     * @param {Array} arr
      *
      ***/
     'isEqual': function(a, b) {
@@ -3225,11 +3280,11 @@
     },
 
     /***
-     * @method at(<index>, [loop] = false)
-     * @returns Mixed
-     * @short Gets the element(s) at <index>.
+     * @method at(index, [loop] = false)
+     * @returns ArrayElement
+     * @short Gets the element(s) at `index`.
      * @extra When [loop] is true, overshooting the end of the array will begin
-     *        counting from the other end. <index> may be negative. If <index> is
+     *        counting from the other end. `index` may be negative. If `index` is
      *        an array, multiple elements will be returned.
      *
      * @example
@@ -3241,17 +3296,20 @@
      *   [1,2,3].at(-1)      -> 3
      *   [1,2,3].at([0, 1])  -> [1, 2]
      *
+     * @param {number|number[]} index
+     * @param {boolean} [loop]
+     *
      ***/
     'at': function(arr, index, loop) {
       return getEntriesForIndexes(arr, index, loop);
     },
 
     /***
-     * @method add(<item>, [index])
+     * @method add(item, [index])
      * @returns Array
-     * @short Adds <item> to the array and returns the result as a new array.
-     * @extra If <item> is also an array, it will be concatenated instead of
-     *        inserted. [index] will control where <item> is added. Use `append`
+     * @short Adds `item` to the array and returns the result as a new array.
+     * @extra If `item` is also an array, it will be concatenated instead of
+     *        inserted. [index] will control where `item` is added. Use `append`
      *        to modify the original array.
      *
      * @example
@@ -3260,16 +3318,19 @@
      *   [1,2,3,4].add(8, 1)    -> [1,8,2,3,4]
      *   [1,2,3,4].add([5,6,7]) -> [1,2,3,4,5,6,7]
      *
+     * @param {ArrayElement|Array} item
+     * @param {number} [index]
+     *
      ***/
     'add': function(arr, item, index) {
       return arrayAppend(arrayClone(arr), item, index);
     },
 
     /***
-     * @method subtract(<item>)
+     * @method subtract(item)
      * @returns Array
-     * @short Subtracts <item> from the array and returns the result as a new array.
-     * @extra If <item> is also an array, all elements in it will be removed. In
+     * @short Subtracts `item` from the array and returns the result as a new array.
+     * @extra If `item` is also an array, all elements in it will be removed. In
      *        addition to primitives, this method will also deep-check objects for
      *        equality.
      *
@@ -3279,16 +3340,18 @@
      *   ['a','b'].subtract(['b','c']) -> ['a']
      *   [1,2,3].subtract(2)           -> [1,3]
      *
+     * @param {ArrayElement|Array} item
+     *
      ***/
-    'subtract': function(arr1, arr2) {
-      return arrayIntersectOrSubtract(arr1, arr2, true);
+    'subtract': function(arr, item) {
+      return arrayIntersectOrSubtract(arr, item, true);
     },
 
     /***
-     * @method append(<item>, [index])
+     * @method append(item, [index])
      * @returns Array
-     * @short Appends <item> to the array.
-     * @extra If <item> is also an array, it will be concatenated instead of
+     * @short Appends `item` to the array.
+     * @extra If `item` is also an array, it will be concatenated instead of
      *        inserted. This method modifies the array! Use `add` to create a new
      *        array. Additionally, `insert` is provided as an alias that reads
      *        better when using an index.
@@ -3299,21 +3362,27 @@
      *   [1,2,3,4].append([5,6,7]) -> [1,2,3,4,5,6,7]
      *   [1,2,3,4].append(8, 1)    -> [1,8,2,3,4]
      *
+     * @param {ArrayElement|Array} item
+     * @param {number} index
+     *
      ***/
     'append': function(arr, item, index) {
       return arrayAppend(arr, item, index);
     },
 
     /***
-     * @method removeAt(<start>, [end])
+     * @method removeAt(start, [end])
      * @returns Array
-     * @short Removes element at <start>. If [end] is specified, removes the range
-     *        between <start> and [end]. This method will modify the array!
+     * @short Removes element at `start`. If [end] is specified, removes the range
+     *        between `start` and [end]. This method will modify the array!
      *
      * @example
      *
      *   ['a','b','c'].removeAt(0) -> ['b','c']
      *   [1,2,3,4].removeAt(1, 2)  -> [1, 4]
+     *
+     * @param {number} start
+     * @param {number} [end]
      *
      ***/
     'removeAt': function(arr, start, end) {
@@ -3334,7 +3403,7 @@
      *        objects will be deep checked for equality. Supports
      *        `deep properties`.
      *
-     * @callback map
+     * @callback mapFn
      *
      *   el   The element of the current iteration.
      *   i    The index of the current iteration.
@@ -3350,6 +3419,12 @@
      *   }); -> users array uniqued by id
      *
      *   users.unique('id')            -> users array uniqued by id
+     *
+     * @param {string|mapFn} map
+     * @callbackParam {ArrayElement} el
+     * @callbackParam {number} i
+     * @callbackParam {Array} arr
+     * @callbackReturns {NewArrayElement} mapFn
      *
      ***/
     'unique': function(arr, map) {
@@ -3368,6 +3443,8 @@
      *   [[1], 2, [3]].flatten() -> [1,2,3]
      *   [[1],[],2,3].flatten()  -> [1,2,3]
      *
+     * @param {number} [limit]
+     *
      ***/
     'flatten': function(arr, limit) {
       return arrayFlatten(arr, limit);
@@ -3377,12 +3454,14 @@
      * @method first([num] = 1)
      * @returns Mixed
      * @short Returns the first element(s) in the array.
-     * @extra When <num> is passed, returns the first <num> elements in the array.
+     * @extra When `num` is passed, returns the first `num` elements in the array.
      *
      * @example
      *
      *   [1,2,3].first()  -> 1
      *   [1,2,3].first(2) -> [1,2]
+     *
+     * @param {number} [num]
      *
      ***/
     'first': function(arr, num) {
@@ -3395,12 +3474,14 @@
      * @method last([num] = 1)
      * @returns Mixed
      * @short Returns the last element(s) in the array.
-     * @extra When <num> is passed, returns the last <num> elements in the array.
+     * @extra When `num` is passed, returns the last `num` elements in the array.
      *
      * @example
      *
      *   [1,2,3].last()  -> 3
      *   [1,2,3].last(2) -> [2,3]
+     *
+     * @param {number} [num]
      *
      ***/
     'last': function(arr, num) {
@@ -3410,14 +3491,16 @@
     },
 
     /***
-     * @method from(<index>)
+     * @method from(index)
      * @returns Array
-     * @short Returns a slice of the array from <index>.
+     * @short Returns a slice of the array from `index`.
      *
      * @example
      *
      *   ['a','b','c'].from(1) -> ['b','c']
      *   ['a','b','c'].from(2) -> ['c']
+     *
+     * @param {number} [index]
      *
      ***/
     'from': function(arr, num) {
@@ -3425,14 +3508,16 @@
     },
 
     /***
-     * @method to(<index>)
+     * @method to(index)
      * @returns Array
-     * @short Returns a slice of the array up to <index>.
+     * @short Returns a slice of the array up to `index`.
      *
      * @example
      *
      *   ['a','b','c'].to(1) -> ['a']
      *   ['a','b','c'].to(2) -> ['a','b']
+     *
+     * @param {number} [index]
      *
      ***/
     'to': function(arr, num) {
@@ -3454,26 +3539,28 @@
      *   [1,'',2,false,3].compact(true)   -> [1,2,3]
      *   [null, [null, 'bye']].compact()  -> ['hi', [null, 'bye']]
      *
+     * @param {boolean} [all]
+     *
      ***/
     'compact': function(arr, all) {
       return arrayCompact(arr, all);
     },
 
     /***
-     * @method groupBy(<map>, [fn])
+     * @method groupBy(map, [fn])
      * @returns Object
-     * @short Groups the array by <map>.
-     * @extra Will return an object whose keys are the mapped from <map>, which
-     *        may be a mapping function, or a string acting as a shortcut. <map>
+     * @short Groups the array by `map`.
+     * @extra Will return an object whose keys are the mapped from `map`, which
+     *        may be a mapping function, or a string acting as a shortcut. `map`
      *        supports `deep properties`. Optionally calls [fn] for each group.
      *
-     * @callback map
+     * @callback mapFn
      *
      *   el   The element of the current iteration.
      *   i    The index of the current iteration.
      *   arr  A reference to the array.
      *
-     * @callback fn
+     * @callback groupFn
      *
      *   arr  The current group as an array.
      *   key  The unique key of the current group.
@@ -3491,15 +3578,24 @@
      *     // iterates each grouping
      *   });
      *
+     * @param {string|mapFn} map
+     * @param {groupFn} fn
+     * @callbackParam {ArrayElement} el
+     * @callbackParam {number} i
+     * @callbackParam {Array} arr
+     * @callbackParam {string} key
+     * @callbackParam {Object} obj
+     * @callbackReturns {NewArrayElement} mapFn
+     *
      ***/
     'groupBy': function(arr, map, fn) {
       return arrayGroupBy(arr, map, fn);
     },
 
     /***
-     * @method inGroups(<num>, [padding])
+     * @method inGroups(num, [padding])
      * @returns Array
-     * @short Groups the array into <num> arrays.
+     * @short Groups the array into `num` arrays.
      * @extra If specified, [padding] will be added to the last array to be of
      *        equal length.
      *
@@ -3507,6 +3603,9 @@
      *
      *   [1,2,3,4,5,6,7].inGroups(3)    -> [[1,2,3],[4,5,6],[7]]
      *   [1,2,3,4,5,6,7].inGroups(3, 0) -> [[1,2,3],[4,5,6],[7,0,0]]
+     *
+     * @param {number} num
+     * @param {any} [padding]
      *
      ***/
     'inGroups': function(arr, num, padding) {
@@ -3527,15 +3626,18 @@
     },
 
     /***
-     * @method inGroupsOf(<num>, [padding] = null)
+     * @method inGroupsOf(num, [padding] = null)
      * @returns Array
-     * @short Groups the array into arrays of <num> elements each.
+     * @short Groups the array into arrays of `num` elements each.
      * @extra [padding] will be added to the last array to be of equal length.
      *
      * @example
      *
      *   [1,2,3,4,5,6,7].inGroupsOf(4)    -> [ [1,2,3,4], [5,6,7] ]
      *   [1,2,3,4,5,6,7].inGroupsOf(4, 0) -> [ [1,2,3,4], [5,6,7,0] ]
+     *
+     * @param {number} num
+     * @param {any} [padding]
      *
      ***/
     'inGroupsOf': function(arr, num, padding) {
@@ -3582,6 +3684,9 @@
      *   [1,2,3,4,5].sample(1) -> // Array of 1 random element
      *   [1,2,3,4,5].sample(3) -> // Array of 3 random elements
      *
+     * @param {number} [num]
+     * @param {boolean} [remove]
+     *
      ***/
     'sample': function(arr, arg1, arg2) {
       var result = [], num, remove, single;
@@ -3608,19 +3713,19 @@
     },
 
     /***
-     * @method sortBy(<map>, [desc] = false)
+     * @method sortBy([map], [desc] = false)
      * @returns Array
-     * @short Enhanced sorting function that will sort the array by <map>.
-     * @extra <map> may be a function, a string acting as a shortcut, an array
+     * @short Enhanced sorting function that will sort the array by `map`.
+     * @extra `map` may be a function, a string acting as a shortcut, an array
      *        (comparison by multiple values), or blank (direct comparison of
-     *        array values). <map> supports `deep properties`. [desc] will sort
+     *        array values). `map` supports `deep properties`. [desc] will sort
      *        the array in descending order. When the field being sorted on is
      *        a string, the resulting order will be determined by an internal
      *        collation algorithm that is optimized for major Western languages,
      *        but can be customized using sorting accessors such as `sortIgnore`.
      *        This method will modify the array!
      *
-     * @callback map
+     * @callback sortMapFn
      *
      *   el   An array element.
      *
@@ -3633,6 +3738,11 @@
      *   }); -> users array sorted by age
      *   users.sortBy('age') -> users array sorted by age
      *
+     * @param {string|sortMapFn} [map]
+     * @param {boolean} [desc]
+     * @callbackParam {ArrayElement} el
+     * @callbackReturns {NewArrayElement} sortMapFn
+     *
      ***/
     'sortBy': function(arr, map, desc) {
       arr.sort(function(a, b) {
@@ -3644,13 +3754,13 @@
     },
 
     /***
-     * @method remove(<search>)
+     * @method remove(search)
      * @returns Array
-     * @short Removes any element in the array that matches <search>.
+     * @short Removes any element in the array that matches `search`.
      * @extra This method will modify the array! Use `exclude` for a
      *        non-destructive alias. This method implements `enhanced matching`.
      *
-     * @callback search
+     * @callback searchFn
      *
      *   el   The element of the current iteration.
      *   i    The index of the current iteration.
@@ -3664,20 +3774,26 @@
      *     return n['a'] == 1;
      *   }); -> [{b:2}]
      *
+     * @param {ArrayElement|searchFn} search
+     * @callbackParam {ArrayElement} el
+     * @callbackParam {number} i
+     * @callbackParam {Array} arr
+     * @callbackReturns {boolean} searchFn
+     *
      ***/
     'remove': function(arr, f) {
       return arrayRemove(arr, f);
     },
 
     /***
-     * @method exclude(<search>)
+     * @method exclude(search)
      * @returns Array
-     * @short Returns a new array with every element that does not match <search>.
+     * @short Returns a new array with every element that does not match `search`.
      * @extra This method can be thought of as the inverse of `Array#filter`. It
      *        will not modify the original array, Use `remove` to modify the
      *        array in place. Implements `enhanced matching`.
      *
-     * @callback search
+     * @callback searchFn
      *
      *   el   The element of the current iteration.
      *   i    The index of the current iteration.
@@ -3691,13 +3807,19 @@
      *     return n['a'] == 1;
      *   }); -> [{b:2}]
      *
+     * @param {ArrayElement|searchFn} search
+     * @callbackParam {ArrayElement} el
+     * @callbackParam {number} i
+     * @callbackParam {Array} arr
+     * @callbackReturns {boolean} searchFn
+     *
      ***/
     'exclude': function(arr, f) {
       return arrayExclude(arr, f);
     },
 
     /***
-     * @method union(<arr>)
+     * @method union(arr)
      * @returns Array
      * @short Returns a new array containing elements in both arrays with
      *        duplicates removed.
@@ -3709,13 +3831,15 @@
      *   [1,3,5].union([5,7,9])     -> [1,3,5,7,9]
      *   ['a','b'].union(['b','c']) -> ['a','b','c']
      *
+     * @param {Array} arr
+     *
      ***/
     'union': function(arr1, arr2) {
       return arrayUnique(arrayConcat(arr1, arr2));
     },
 
     /***
-     * @method intersect(<arr>)
+     * @method intersect(arr)
      * @returns Array
      * @short Returns a new array containing any elements that both arrays have in
      *        common.
@@ -3726,6 +3850,8 @@
      *
      *   [1,3,5].intersect([5,7,9])     -> [5]
      *   ['a','b'].intersect(['b','c']) -> ['b']
+     *
+     * @param {Array} arr
      *
      ***/
     'intersect': function(arr1, arr2) {
@@ -3751,6 +3877,9 @@
      *
      *   [1,2,3].zip([4,5,6]) -> [[1,2], [3,4], [5,6]]
      *
+     * @param {Array} arr1
+     * @param {Array} arr2
+     *
      ***/
     'zip': function(arr, args) {
       return map(arr, function(el, i) {
@@ -3763,17 +3892,20 @@
   });
 
   /***
-   * @method insert(<item>, [index])
+   * @method insert(item, [index])
    * @returns Array
-   * @short Appends <item> to the array at [index].
+   * @short Appends `item` to the array at [index].
    * @extra This method is simply a more readable alias for `append` when passing
-   *        an index. If <el> is an array it will be joined. This method modifies
+   *        an index. If `el` is an array it will be joined. This method modifies
    *        the array! Use `add` as a non-destructive alias.
    *
    * @example
    *
    *   [1,3,4,5].insert(2, 1)     -> [1,2,3,4,5]
    *   [1,4,5,6].insert([2,3], 1) -> [1,2,3,4,5,6]
+   *
+   * @param {ArrayElement|Array} item
+   * @param {number} [index]
    *
    ***/
   alias(sugarArray, 'insert', 'append');
